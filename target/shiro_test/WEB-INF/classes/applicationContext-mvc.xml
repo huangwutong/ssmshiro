@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+    http://www.springframework.org/schema/context   
+    http://www.springframework.org/schema/context/spring-context-4.0.xsd
+    http://www.springframework.org/schema/task  
+    http://www.springframework.org/schema/task/spring-task-4.0.xsd  
+    http://www.springframework.org/schema/mvc   
+    http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+    http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd ">
+	<!-- 引入属性文件 -->
+	<context:property-placeholder location="classpath:properties/load.properties" />
+	<bean class="com.angsentech.ssm.util.PropertiesUtils">
+		<property name="locations">
+			<list>
+				<value>classpath:properties/load.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 开启注解 -->
+	<mvc:annotation-driven />
+	<!-- 规定这里只扫描controller -->
+	<context:component-scan base-package="com.angsentech.ssm" >
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+	</context:component-scan>
+	
+	<!-- 对模型视图名称的解析，即在模型视图名称添加前后缀 -->
+	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+<!--  	<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+    	<property name="resourceLoaderPath" value="/WEB-INF/views"/>
+    	<property name="configLocation" value="classpath:config/velocity.properties"/>
+    </bean>
+
+    <bean id="velocityViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
+        <property name="exposeRequestAttributes" value="true" />
+        <property name="cache" value="false"/>
+        <property name="layoutUrl" value="layout/default.vm" />
+        <property name="toolboxConfigLocation" value="/WEB-INF/toolbox.xml" />
+        <property name="prefix" value="" />
+        <property name="suffix" value=".vm" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="contentType" value="text/html;charset=UTF-8" />
+        <property name="viewClass"
+                  value="org.springframework.web.servlet.view.velocity.VelocityLayoutView" />
+    </bean>	 -->
+	
+	<!-- 静态资源 -->
+	  <!-- 静态资源(js、image等)的访问 -->
+    <mvc:resources mapping="/js/**" location="/public/js/" />
+    <mvc:resources mapping="/plugins/**" location="/public/plugins/" />
+    <mvc:resources mapping="/css/**" location="/public/css/" />
+    <mvc:resources mapping="/images/**" location="/public/images/" />
+    <mvc:default-servlet-handler/>
+
+	<bean id="handlerExceptionResolver"
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.Exception">common/500</prop>
+				<prop key="java.lang.Throwable">common/404</prop>
+			</props>
+		</property>
+		<property name="statusCodes">
+			<props>
+				<prop key="/errors/403">403</prop>
+				<prop key="/errors/400">400</prop>
+				<prop key="/errors/405">405</prop>
+			</props>
+		</property>
+		<!--定义异常处理页面用来获取异常信息的变量名，默认名value为exception-->
+		<property name="exceptionAttribute" value="ex"></property>  
+		<!-- 设置日志输出级别，不定义则默认不输出警告等错误日志信息 -->
+		<property name="warnLogCategory" value="WARN"></property>
+		<!-- 默认错误页面，当找不到上面mappings中指定的异常对应视图时，使用本默认配置 -->
+		<property name="defaultErrorView" value="error"></property>
+		<!-- 默认HTTP状态码 -->
+		<property name="defaultStatusCode" value="500"></property>
+	</bean>
+	
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	
+	<task:annotation-driven/> 
+
+	<!-- 启用shrio授权注解拦截方式 -->
+    <aop:config proxy-target-class="true"></aop:config>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>  
+</beans>

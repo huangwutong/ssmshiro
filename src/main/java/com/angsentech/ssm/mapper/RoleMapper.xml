@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.angsentech.ssm.mapper.RoleMapper">
+	<resultMap id="roleMap" type="com.angsentech.ssm.entity.Role">
+		<id column="id" property="id"/>
+		<result column="role_name" property="roleName"/>
+		<result column="remark" property="remark"/>
+		<collection property="permissions" ofType="com.angsentech.ssm.entity.Permission">
+			<id column="permission_id" property="id"/>
+			<result column="permission_name" property="name"/>
+		</collection>
+	</resultMap>
+	
+	<!-- 角色基本列 -->
+	<sql id="role_Column_List">
+		t.id, t.role_name,t.remark
+	</sql>
+	
+	<!-- 查询条件 -->
+	<sql id="query_Condition">
+		<where>
+			<if test="roleName !=null and roleName !=''">
+				t.role_name like CONCAT(CONCAT('%', #{roleName}), '%')
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 插入角色 -->
+	<insert id="add" parameterType="com.angsentech.ssm.entity.Role">
+		insert 
+			into 
+		t_role
+			(role_name,remark)
+		values
+			(#{roleName},#{remark})
+	</insert>
+	
+	<!-- 加载角色列表 -->
+	<select id="queryObjsList" parameterType="com.angsentech.ssm.entity.Role" resultMap="roleMap">
+		SELECT 
+			<include refid="role_Column_List"></include> 
+		from 
+			t_role t 
+			<include refid="query_Condition"/>
+	</select>
+	
+	<!-- 查询角色总数 -->
+	<select id="queryObjsCount" parameterType="com.angsentech.ssm.entity.Role" resultType="INTEGER">
+		SELECT 
+			count(1)
+		from 
+			t_role t 
+		<include refid="query_Condition"/>
+	</select>
+	
+	<!-- 查找角色 -->
+	<select id="findObjByid" parameterType="Long" resultMap="roleMap">
+		select
+			<include refid="role_Column_List"/> ,p.name as permission_name,p.id as permission_id
+		from 
+			t_role t 
+			left join t_role_permission rp on rp.role_id=t.id
+			left join t_permission p on p.id=rp.permission_id
+		where
+			t.id=#{id}
+	</select>
+	<!-- 删除权限 -->
+	<delete id="deleteRole" parameterType="Long">
+		delete from t_role where id=#{id}
+	</delete>
+	
+	<update id="update" parameterType="com.angsentech.ssm.entity.Role">
+		update
+			t_role
+		<set>
+			<if test="roleName !=null and roleName !=''">
+				role_name=#{roleName},
+			</if>
+			<if test="remark != null and remark !=''">
+				remark= #{remark},
+			</if>
+		</set>
+		where
+			id=#{id}
+	</update>
+	
+	<!-- 删除权限角色 -->
+	<delete id="deleteRolePermission" parameterType="Long">
+		delete from 
+			t_role_permission
+		where
+			role_id =#{roleId}
+	</delete>
+	
+	<!-- 添加角色权限 -->
+	<insert id="insertRolePermission" parameterType="com.angsentech.ssm.entity.Role">
+		insert 
+			into
+		t_role_permission
+			(role_id,permission_id)
+		values
+    	<foreach collection="permissionId" item="item" index="index" separator="," >  
+			(#{id},#{item})	
+		</foreach>	  
+	</insert>
+	<!-- 查找全部角色 -->
+	<select id="selectAllRole" resultMap="roleMap">
+		select
+		<include refid="role_Column_List"></include>
+		from
+		t_role t
+	</select>
+</mapper>  

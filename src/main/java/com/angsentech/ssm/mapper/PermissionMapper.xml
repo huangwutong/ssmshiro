@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.angsentech.ssm.mapper.PermissionMapper">
+	<resultMap id="baseMap" type="com.angsentech.ssm.entity.Permission">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+	
+	<sql id="permission_Column_List">
+		t.id, t.name,t.remark
+	</sql>
+	
+	<!-- 添加权限 -->
+	<insert id="add" parameterType="com.angsentech.ssm.entity.Permission">
+		insert 
+			into t_permission
+		(name,remark)
+			values
+		(#{name},#{remark})
+	</insert>
+	
+	<!-- 加载权限列表 -->
+	<select id="queryObjsList" resultMap="baseMap">
+		SELECT 
+			<include refid="permission_Column_List"></include>
+		from 
+			t_permission t 
+		<where>
+			<if test="name !=null and name !=''">
+				and t.name like CONCAT(CONCAT('%', #{name}), '%')
+			</if>
+			<if test="remark !=null and remark !=''">
+				and t.remark like CONCAT(CONCAT('%', #{remark}), '%')
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询总数 -->
+	<select id="queryObjsCount" parameterType="com.angsentech.ssm.entity.Permission" resultType="INTEGER">
+		SELECT
+			count(1)
+		FROM
+			t_permission t
+		<where>
+			<if test="name !=null and name !=''">
+				and t.name like CONCAT(CONCAT('%', #{name}), '%')
+			</if>
+			<if test="remark !=null and remark !=''">
+				and t.remark like CONCAT(CONCAT('%', #{remark}), '%')
+			</if>
+		</where>
+	</select>
+	
+	<!-- 根据编号查找权限 -->
+	<select id="findObjByid" parameterType="Long" resultMap="baseMap">
+		SELECT 
+			<include refid="permission_Column_List"></include>
+		from 
+			t_permission t
+		where 
+			t.id = #{id}
+	</select>
+	
+	<!-- 更新权限信息 -->
+	<update id="update" parameterType="com.angsentech.ssm.entity.Permission">
+		update
+			t_permission
+		<set>
+			<if test="name !=null and name !=''">
+				name=#{name},
+			</if>
+			<if test="remark != null and remark !=''">
+				remark= #{remark},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<!-- 查找全部权限 -->
+	<select id="selectAllPermission" resultMap="baseMap">
+		select 
+			<include refid="permission_Column_List"></include>
+		from
+			t_permission t
+	</select>
+	<!-- 删除权限 -->
+	<delete id="delete" parameterType="Long">
+		delete from t_permission where id=#{id}
+	</delete>
+</mapper>  

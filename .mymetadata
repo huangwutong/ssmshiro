@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="ssm_shiro"
+  id="myeclipse.1507473218955"
+  context-root="/shiro_test"
+  j2ee-spec="1.7"
+  archive="ssm_shiro.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+
